@@ -278,7 +278,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Desmos Edge Detection</h1>
+        <h1>Edge Detection</h1>
         
         <div class="upload-section">
             <h2>Upload Image</h2>
@@ -354,16 +354,14 @@
         </div>
     </div>
     
-    <script src="config.js"></script>
     <script>
-        // Use API key from config.js
-        const apiKey = (typeof DESMOS_API_KEY !== 'undefined' && DESMOS_API_KEY) 
-            ? DESMOS_API_KEY 
-            : null;
+        // API key is injected during GitHub Pages deployment via GitHub Actions
+        // Do not commit your actual API key here!
+        const apiKey = 'NO_API_KEY_HERE';
         
-        if (!apiKey) {
-            alert('Error: Please add your Desmos API key to config.js');
-            console.error('DESMOS_API_KEY not found in config.js');
+        if (apiKey === 'NO_API_KEY_HERE') {
+            alert('Error: API key not configured.');
+            console.error('API key not configured');
         }
         
         let desmosLoaded = false;
@@ -371,11 +369,11 @@
         script.src = `https://www.desmos.com/api/v1.11/calculator.js?apiKey=${apiKey}`;
         script.onload = () => {
             desmosLoaded = true;
-            console.log('Desmos API loaded with key:', apiKey.substring(0, 10) + '...');
+            console.log('Desmos API loaded successfully');
         };
         script.onerror = (error) => {
-            console.error('Failed to load Desmos API. Check your API key in config.js');
-            alert('Failed to load Desmos API. Please check your API key in config.js');
+            console.error('Failed to load Desmos API.');
+            alert('Failed to load Desmos API. Check console for details.');
         };
         document.head.appendChild(script);
     </script>
