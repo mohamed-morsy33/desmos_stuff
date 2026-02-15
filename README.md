@@ -1,5 +1,5 @@
 Usage is:
 
-```python
+```shell
 python desmos.py input_img.png
 ```
