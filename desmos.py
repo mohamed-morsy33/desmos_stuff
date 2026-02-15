@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage
 import json
-
+import sys
 
 def histogram_equalization(image: np.ndarray) -> np.ndarray:
     """
@@ -290,9 +290,15 @@ if __name__ == "__main__":
     print("EDGE DETECTION SCRIPT")
     print("=" * 70)
     
+    if len(sys.argv) < 2:
+        print("Requires 2 args: input script and image")
+        sys.exit(1)
+    
+    input_img = sys.argv[1] 
+     
     # Run Prewitt edge detection
     edges, coords, gradient = prewitt_edge_detect(
-        "input_img.png",
+        input_img,
         sigma=1.2,                 # Smoothing (1.0-2.0, lower = more detail)
         threshold=0.08,            # Edge threshold (0.05-0.15, lower = more edges)
         use_histogram_eq=True,     # Enhance contrast
