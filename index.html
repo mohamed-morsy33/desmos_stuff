@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+            background-color: #2d5016;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 40px;
+            border: 3px solid #4a7c24;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d5016;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 2px solid #4a7c24;
+            text-align: center;
+        }
+        
+        .upload-section h2 {
+            color: #2d5016;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .file-input-wrapper {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-input-label {
+            background: #4a7c24;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .file-input-label:hover {
+            background: #5a8c34;
+        }
+        
+        .process-btn {
+            background: #4a7c24;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .process-btn:hover {
+            background: #5a8c34;
+        }
+        
+        .process-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .settings {
+            background: white;
+            padding: 25px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 2px solid #4a7c24;
+        }
+        
+        .settings h2 {
+            color: #2d5016;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .setting-row {
+            margin-bottom: 15px;
+        }
+        
+        .setting-row label {
+            display: inline-block;
+            width: 150px;
+            color: #2d5016;
+            font-weight: bold;
+        }
+        
+        .setting-row input {
+            padding: 8px;
+            border: 2px solid #4a7c24;
+            border-radius: 5px;
+            font-family: 'Comic Sans MS', cursive;
+            width: 200px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-box {
+            background: #4a7c24;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 5px;
+            text-align: center;
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-text {
+            font-size: 1em;
+        }
+        
+        .image-section {
+            margin: 30px 0;
+        }
+        
+        .image-box {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 2px solid #4a7c24;
+        }
+        
+        .image-box h3 {
+            color: #2d5016;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .image-box canvas {
+            max-width: 100%;
+            border-radius: 3px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .downloads {
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+            margin: 30px 0;
+            border: 2px solid #4a7c24;
+        }
+        
+        .downloads h2 {
+            color: #2d5016;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .download-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .download-link {
+            background: #4a7c24;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            font-family: 'Comic Sans MS', cursive;
+        }
+        
+        .download-link:hover {
+            background: #5a8c34;
+        }
+        
+        .desmos-section {
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+            margin: 30px 0;
+            border: 2px solid #4a7c24;
+        }
+        
+        .desmos-section h2 {
+            color: #2d5016;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        #calculator {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #4a7c24;
+            border-radius: 5px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #4a7c24;
+            font-size: 1.2em;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .stat-box {
+                min-width: 100%;
+            }
+            
+            .setting-row label {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .setting-row input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Desmos Edge Detection</h1>
+        
+        <div class="upload-section">
+            <h2>Upload Image</h2>
+            <div class="file-input-wrapper">
+                <input type="file" id="imageInput" accept="image/*">
+                <label for="imageInput" class="file-input-label">Choose Image</label>
+            </div>
+            <div id="fileName" style="margin: 10px 0; color: #4a7c24;"></div>
+            <button id="processBtn" class="process-btn" disabled>Detect Edges</button>
+            <div id="loading" class="loading hidden">Processing...</div>
+        </div>
+        
+        <div class="settings">
+            <h2>Settings</h2>
+            <div class="setting-row">
+                <label for="sigma">Sigma:</label>
+                <input type="number" id="sigma" value="1.2" step="0.1" min="0.5" max="3">
+            </div>
+            <div class="setting-row">
+                <label for="threshold">Threshold:</label>
+                <input type="number" id="threshold" value="0.08" step="0.01" min="0.01" max="0.5">
+            </div>
+        </div>
+        
+        <div id="results" class="hidden">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="edgeCount">0</div>
+                    <div class="stat-text">Edge Pixels</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="coverage">0%</div>
+                    <div class="stat-text">Coverage</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="resolution">0x0</div>
+                    <div class="stat-text">Resolution</div>
+                </div>
+            </div>
+            
+            <div class="image-section">
+                <div class="image-box">
+                    <h3>Original Image</h3>
+                    <canvas id="originalCanvas"></canvas>
+                </div>
+                
+                <div class="image-box">
+                    <h3>Detected Edges</h3>
+                    <canvas id="edgesCanvas"></canvas>
+                </div>
+                
+                <div class="image-box">
+                    <h3>Edge Overlay</h3>
+                    <canvas id="overlayCanvas"></canvas>
+                </div>
+            </div>
+            
+            <div class="downloads">
+                <h2>Download Results</h2>
+                <div class="download-links">
+                    <button class="download-link" onclick="downloadJSON()">Coordinates (JSON)</button>
+                    <button class="download-link" onclick="downloadDesmos()">Desmos Graph</button>
+                </div>
+            </div>
+            
+            <div class="desmos-section">
+                <h2>Desmos Graph</h2>
+                <p style="color: #2d5016; margin-bottom: 10px; font-size: 0.9em;">
+                    Note: Displaying ~5,000 sampled points (from <span id="totalPoints"></span> total) for performance
+                </p>
+                <div id="calculator"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script>
+        // Use API key from config.js
+        const apiKey = (typeof DESMOS_API_KEY !== 'undefined' && DESMOS_API_KEY) 
+            ? DESMOS_API_KEY 
+            : null;
+        
+        if (!apiKey) {
+            alert('Error: Please add your Desmos API key to config.js');
+            console.error('DESMOS_API_KEY not found in config.js');
+        }
+        
+        let desmosLoaded = false;
+        const script = document.createElement('script');
+        script.src = `https://www.desmos.com/api/v1.11/calculator.js?apiKey=${apiKey}`;
+        script.onload = () => {
+            desmosLoaded = true;
+            console.log('Desmos API loaded with key:', apiKey.substring(0, 10) + '...');
+        };
+        script.onerror = (error) => {
+            console.error('Failed to load Desmos API. Check your API key in config.js');
+            alert('Failed to load Desmos API. Please check your API key in config.js');
+        };
+        document.head.appendChild(script);
+    </script>
+    <script>
+        let currentImage = null;
+        let edgeCoordinates = [];
+        let imageWidth = 0;
+        let imageHeight = 0;
+        let calculator = null;
+        
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = `Selected: ${file.name}`;
+                document.getElementById('processBtn').disabled = false;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        currentImage = img;
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        document.getElementById('processBtn').addEventListener('click', processImage);
+        
+        function processImage() {
+            if (!currentImage) return;
+            
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('processBtn').disabled = true;
+            
+            setTimeout(() => {
+                const sigma = parseFloat(document.getElementById('sigma').value);
+                const threshold = parseFloat(document.getElementById('threshold').value);
+                
+                const grayData = rgbToGray(currentImage);
+                const enhanced = histogramEqualization(grayData);
+                const blurred = gaussianBlur(enhanced, sigma);
+                const edges = prewittEdgeDetection(blurred, threshold);
+                
+                edgeCoordinates = extractCoordinates(edges);
+                
+                displayResults(currentImage, edges);
+                updateStats(edges);
+                
+                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('processBtn').disabled = false;
+                
+                // Wait for Desmos to load before initializing
+                waitForDesmos(() => {
+                    initDesmos();
+                });
+            }, 100);
+        }
+        
+        function waitForDesmos(callback) {
+            if (desmosLoaded && typeof Desmos !== 'undefined') {
+                callback();
+            } else {
+                setTimeout(() => waitForDesmos(callback), 100);
+            }
+        }
+        
+        function rgbToGray(img) {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const gray = new Array(canvas.height);
+            
+            for (let i = 0; i < canvas.height; i++) {
+                gray[i] = new Array(canvas.width);
+                for (let j = 0; j < canvas.width; j++) {
+                    const idx = (i * canvas.width + j) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+                    gray[i][j] = 0.2989 * r + 0.5870 * g + 0.1140 * b;
+                }
+            }
+            
+            imageWidth = canvas.width;
+            imageHeight = canvas.height;
+            return gray;
+        }
+        
+        function histogramEqualization(gray) {
+            const hist = new Array(256).fill(0);
+            const height = gray.length;
+            const width = gray[0].length;
+            
+            for (let i = 0; i < height; i++) {
+                for (let j = 0; j < width; j++) {
+                    hist[Math.floor(gray[i][j])]++;
+                }
+            }
+            
+            const cdf = new Array(256);
+            cdf[0] = hist[0];
+            for (let i = 1; i < 256; i++) {
+                cdf[i] = cdf[i - 1] + hist[i];
+            }
+            
+            const cdfMin = cdf.find(val => val > 0);
+            const totalPixels = height * width;
+            
+            const equalized = new Array(height);
+            for (let i = 0; i < height; i++) {
+                equalized[i] = new Array(width);
+                for (let j = 0; j < width; j++) {
+                    const val = Math.floor(gray[i][j]);
+                    equalized[i][j] = ((cdf[val] - cdfMin) / (totalPixels - cdfMin)) * 255;
+                }
+            }
+            
+            return equalized;
+        }
+        
+        function gaussianBlur(data, sigma) {
+            const size = Math.ceil(sigma * 3) * 2 + 1;
+            const kernel = createGaussianKernel(size, sigma);
+            return convolve2D(data, kernel);
+        }
+        
+        function createGaussianKernel(size, sigma) {
+            const kernel = new Array(size);
+            const center = Math.floor(size / 2);
+            let sum = 0;
+            
+            for (let i = 0; i < size; i++) {
+                kernel[i] = new Array(size);
+                for (let j = 0; j < size; j++) {
+                    const x = i - center;
+                    const y = j - center;
+                    kernel[i][j] = Math.exp(-(x * x + y * y) / (2 * sigma * sigma));
+                    sum += kernel[i][j];
+                }
+            }
+            
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    kernel[i][j] /= sum;
+                }
+            }
+            
+            return kernel;
+        }
+        
+        function convolve2D(data, kernel) {
+            const height = data.length;
+            const width = data[0].length;
+            const kHeight = kernel.length;
+            const kWidth = kernel[0].length;
+            const kCenterY = Math.floor(kHeight / 2);
+            const kCenterX = Math.floor(kWidth / 2);
+            
+            const result = new Array(height);
+            for (let i = 0; i < height; i++) {
+                result[i] = new Array(width);
+                for (let j = 0; j < width; j++) {
+                    let sum = 0;
+                    for (let ki = 0; ki < kHeight; ki++) {
+                        for (let kj = 0; kj < kWidth; kj++) {
+                            const y = i + ki - kCenterY;
+                            const x = j + kj - kCenterX;
+                            if (y >= 0 && y < height && x >= 0 && x < width) {
+                                sum += data[y][x] * kernel[ki][kj];
+                            }
+                        }
+                    }
+                    result[i][j] = sum;
+                }
+            }
+            return result;
+        }
+        
+        function prewittEdgeDetection(data, threshold) {
+            const prewittX = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]];
+            const prewittY = [[-1, -1, -1], [0, 0, 0], [1, 1, 1]];
+            
+            const gx = convolve2D(data, prewittX);
+            const gy = convolve2D(data, prewittY);
+            
+            const height = data.length;
+            const width = data[0].length;
+            const gradient = new Array(height);
+            let maxGrad = 0;
+            
+            for (let i = 0; i < height; i++) {
+                gradient[i] = new Array(width);
+                for (let j = 0; j < width; j++) {
+                    gradient[i][j] = Math.sqrt(gx[i][j] * gx[i][j] + gy[i][j] * gy[i][j]);
+                    if (gradient[i][j] > maxGrad) maxGrad = gradient[i][j];
+                }
+            }
+            
+            const thresholdVal = maxGrad * threshold;
+            const edges = new Array(height);
+            for (let i = 0; i < height; i++) {
+                edges[i] = new Array(width);
+                for (let j = 0; j < width; j++) {
+                    edges[i][j] = gradient[i][j] > thresholdVal ? 255 : 0;
+                }
+            }
+            
+            return edges;
+        }
+        
+        function extractCoordinates(edges) {
+            const coords = [];
+            for (let i = 0; i < edges.length; i++) {
+                for (let j = 0; j < edges[i].length; j++) {
+                    if (edges[i][j] > 0) {
+                        coords.push([j, i]);
+                    }
+                }
+            }
+            return coords;
+        }
+        
+        function displayResults(img, edges) {
+            const origCanvas = document.getElementById('originalCanvas');
+            origCanvas.width = img.width;
+            origCanvas.height = img.height;
+            const origCtx = origCanvas.getContext('2d');
+            origCtx.drawImage(img, 0, 0);
+            
+            const edgeCanvas = document.getElementById('edgesCanvas');
+            edgeCanvas.width = img.width;
+            edgeCanvas.height = img.height;
+            const edgeCtx = edgeCanvas.getContext('2d');
+            const edgeImageData = edgeCtx.createImageData(img.width, img.height);
+            for (let i = 0; i < edges.length; i++) {
+                for (let j = 0; j < edges[i].length; j++) {
+                    const idx = (i * img.width + j) * 4;
+                    edgeImageData.data[idx] = edges[i][j];
+                    edgeImageData.data[idx + 1] = edges[i][j];
+                    edgeImageData.data[idx + 2] = edges[i][j];
+                    edgeImageData.data[idx + 3] = 255;
+                }
+            }
+            edgeCtx.putImageData(edgeImageData, 0, 0);
+            
+            const overlayCanvas = document.getElementById('overlayCanvas');
+            overlayCanvas.width = img.width;
+            overlayCanvas.height = img.height;
+            const overlayCtx = overlayCanvas.getContext('2d');
+            overlayCtx.drawImage(img, 0, 0);
+            const overlayImageData = overlayCtx.getImageData(0, 0, img.width, img.height);
+            for (let i = 0; i < edges.length; i++) {
+                for (let j = 0; j < edges[i].length; j++) {
+                    if (edges[i][j] > 0) {
+                        const idx = (i * img.width + j) * 4;
+                        overlayImageData.data[idx] = 255;
+                        overlayImageData.data[idx + 1] = 0;
+                        overlayImageData.data[idx + 2] = 0;
+                    }
+                }
+            }
+            overlayCtx.putImageData(overlayImageData, 0, 0);
+        }
+        
+        function updateStats(edges) {
+            const edgeCount = edgeCoordinates.length;
+            const totalPixels = edges.length * edges[0].length;
+            const coverage = ((edgeCount / totalPixels) * 100).toFixed(1);
+            
+            document.getElementById('edgeCount').textContent = edgeCount.toLocaleString();
+            document.getElementById('coverage').textContent = coverage + '%';
+            document.getElementById('resolution').textContent = `${edges[0].length}x${edges.length}`;
+            document.getElementById('totalPoints').textContent = edgeCount.toLocaleString();
+        }
+        
+        function downsampleCoordinates(coords, maxPoints = 5000) {
+            if (coords.length <= maxPoints) {
+                return coords;
+            }
+            
+            const step = Math.floor(coords.length / maxPoints);
+            const downsampled = [];
+            
+            for (let i = 0; i < coords.length; i += step) {
+                downsampled.push(coords[i]);
+            }
+            
+            console.log(`Downsampled from ${coords.length} to ${downsampled.length} points`);
+            return downsampled;
+        }
+        
+        function initDesmos() {
+            console.log('Initializing Desmos with', edgeCoordinates.length, 'coordinates');
+            
+            const elt = document.getElementById('calculator');
+            if (!elt) {
+                console.error('Calculator element not found');
+                return;
+            }
+            
+            // Always create a new calculator instance
+            if (calculator) {
+                calculator.destroy();
+            }
+            
+            calculator = Desmos.GraphingCalculator(elt, {
+                expressions: true,
+                settingsMenu: true,
+                zoomButtons: true
+            });
+            
+            console.log('Calculator created');
+            
+            // Downsample coordinates for display
+            const sampledCoords = downsampleCoordinates(edgeCoordinates, 5000);
+            const xCoords = sampledCoords.map(c => c[0]);
+            const yCoords = sampledCoords.map(c => -c[1]);
+            
+            console.log('Setting expression with', xCoords.length, 'points (downsampled)');
+            
+            // Create table with points enabled
+            calculator.setExpression({
+                id: 'edge-table',
+                type: 'table',
+                columns: [
+                    {
+                        latex: 'x_1',
+                        values: xCoords
+                    },
+                    {
+                        latex: 'y_1',
+                        values: yCoords,
+                        color: '#4a7c24',
+                        lines: false,
+                        points: true,
+                        pointSize: 4,
+                        pointOpacity: 1
+                    }
+                ]
+            });
+            
+            console.log('Table created with', sampledCoords.length, 'points, setting bounds');
+            
+            // Set the viewport
+            setTimeout(() => {
+                calculator.setMathBounds({
+                    left: -50,
+                    right: imageWidth + 50,
+                    bottom: -(imageHeight + 50),
+                    top: 50
+                });
+                console.log('Bounds set');
+            }, 200);
+            
+            console.log('Desmos initialized successfully');
+        }
+        
+        function downloadJSON() {
+            const data = JSON.stringify(edgeCoordinates, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'edge_coordinates.json';
+            a.click();
+        }
+        
+        function downloadDesmos() {
+            const xCoords = edgeCoordinates.map(c => c[0]);
+            const yCoords = edgeCoordinates.map(c => -c[1]);
+            
+            const desmosState = {
+                version: 11,
+                randomSeed: "12345",
+                graph: {
+                    viewport: {
+                        xmin: -50,
+                        xmax: imageWidth + 50,
+                        ymin: -(imageHeight + 50),
+                        ymax: 50
+                    }
+                },
+                expressions: {
+                    list: [{
+                        type: "table",
+                        id: "edge-points",
+                        columns: [
+                            { latex: "x_1", values: xCoords },
+                            { latex: "y_1", values: yCoords }
+                        ]
+                    }]
+                }
+            };
+            
+            const data = JSON.stringify(desmosState, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'desmos_graph.json';
+            a.click();
+        }
+    </script>
+</body>
+</html>
